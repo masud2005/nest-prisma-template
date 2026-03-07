@@ -8,8 +8,9 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { Prisma } from '@prisma/client';
-import { ExceptionCode } from '../exceptions';
-import { BaseException } from '../exceptions';
+import { ThrottlerException } from '@nestjs/throttler';
+import { BaseException } from '../exceptions/base.exception';
+import { ExceptionCode } from '../exceptions/codes.exception';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
@@ -49,6 +50,17 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         message: body.message,
         error: body.code,
         ...(body.errors?.length && { errors: body.errors }),
+        timestamp,
+        path,
+      };
+    }
+
+    if (exception instanceof ThrottlerException) {
+      return {
+        success: false,
+        statusCode: HttpStatus.TOO_MANY_REQUESTS,
+        message: 'Too many requests. Please try again later',
+        error: ExceptionCode.TOO_MANY_ATTEMPTS,
         timestamp,
         path,
       };
