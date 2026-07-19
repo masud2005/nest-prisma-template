@@ -9,6 +9,23 @@ export const ThrottleAuth = () =>
     },
   });
 
+export const ThrottleRegister = () =>
+  Throttle({
+    default: {
+      ttl: RATE_LIMIT.REGISTER.ttl,
+      limit: RATE_LIMIT.REGISTER.limit,
+    },
+  });
+
+export const ThrottleRefreshToken = () =>
+  Throttle({
+    default: {
+      ttl: RATE_LIMIT.REFRESH_TOKEN.ttl,
+      limit: RATE_LIMIT.REFRESH_TOKEN.limit,
+    },
+  });
+
+
 export const ThrottleLogin = () =>
   Throttle({
     [RATE_LIMIT.LOGIN.name]: {

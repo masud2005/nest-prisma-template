@@ -7,7 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '../../../prisma/generated/client';
 import { ThrottlerException } from '@nestjs/throttler';
 import { BaseException } from '../exceptions/base.exception';
 import { ExceptionCode } from '../exceptions/codes.exception';

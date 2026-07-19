@@ -9,6 +9,16 @@ export const RATE_LIMIT = {
     ttl: 15 * 60_000,
     limit: 10,
   },
+  REGISTER: {
+    name: 'register',
+    ttl: 15 * 60_000,
+    limit: 10,
+  },
+  REFRESH_TOKEN: {
+    name: 'refresh-token',
+    ttl: 15 * 60_000,
+    limit: 10,
+  },
   LOGIN: {
     name: 'login',
     ttl: 15 * 60_000,
