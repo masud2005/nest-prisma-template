@@ -9,6 +9,12 @@ import { ValidationException } from './common/exceptions';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Enable CORS
+  app.enableCors({
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  });
+
   // Global prefix
   app.setGlobalPrefix('api/v1');
 
