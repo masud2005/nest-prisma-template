@@ -20,7 +20,7 @@
     "prisma:push": "npx prisma db push",
     "prisma:migrate": "npx prisma migrate deploy",
     "prisma:reset": "npx prisma migrate reset",
-    "prisma:seed": "npx tsx prisma/seed.ts",
+    "prisma:seed": "npx tsx prisma/seeds/index.ts",
     "prisma:studio": "npx prisma studio",
     "format:fix": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
     "ci:check": "npm run format && npm run lint && npm run prisma:validate && npm run build && npm run start:prod",
