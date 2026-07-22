@@ -11,6 +11,8 @@ import { AuthOtpController } from './controllers/otp.controller';
 import { AuthPasswordController } from './controllers/password.controller';
 import { PasswordService } from './services/password.service';
 
+import { JwtStrategy } from '../../common/strategies/jwt.strategy';
+
 @Module({
   imports: [
     PrismaModule,
@@ -26,7 +28,7 @@ import { PasswordService } from './services/password.service';
     }),
   ],
   controllers: [AuthController, AuthOtpController, AuthPasswordController],
-  providers: [AuthService, OtpService, PasswordService, EmailService],
+  providers: [AuthService, OtpService, PasswordService, EmailService, JwtStrategy],
   exports: [AuthService, JwtModule],
 })
 export class AuthModule { }
