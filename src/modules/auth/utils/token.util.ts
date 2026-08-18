@@ -10,7 +10,9 @@ export const generateTokens = (
     const refreshExpiresIn =
         configService.get<string>('REFRESH_TOKEN_EXPIRES_IN');
 
+    const refreshSecret = configService.get<string>('jwt.refreshSecret') as string;
     const refreshToken = jwtService.sign(payload, {
+        secret: refreshSecret,
         expiresIn: refreshExpiresIn as any,
     });
 

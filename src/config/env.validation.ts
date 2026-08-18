@@ -71,6 +71,10 @@ export class EnvironmentVariables {
   @IsOptional()
   REFRESH_TOKEN_EXPIRES_IN: string;
 
+  @IsNumber()
+  @IsOptional()
+  BCRYPT_SALT_ROUNDS: number;
+
   @IsString()
   SMTP_HOST: string;
 

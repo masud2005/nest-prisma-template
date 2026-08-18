@@ -23,6 +23,7 @@ import {
 
 import { ConfigService } from '@nestjs/config';
 import { generateTokens } from '../utils/token.util';
+import { RedisService } from '../../../shared/redis/redis.service';
 
 @Injectable()
 export class AuthService {
@@ -32,6 +33,7 @@ export class AuthService {
         private readonly configService: ConfigService,
         private readonly otpService: OtpService,
         private readonly eventEmitter: EventEmitter2,
+        private readonly redisService: RedisService,
     ) { }
 
     async register(dto: RegisterDto) {
@@ -46,7 +48,8 @@ export class AuthService {
             throw new ConflictException('User with this email already exists');
         }
 
-        const hashedPassword = await bcrypt.hash(dto.password, 10);
+        const saltRounds = this.configService.get<number>('app.bcryptSaltRounds') as number;
+        const hashedPassword = await bcrypt.hash(dto.password, saltRounds);
 
         const user = await this.prisma.user.create({
             data: {
@@ -67,11 +70,11 @@ export class AuthService {
             throw error;
         }
 
-        // this.eventEmitter.emit('activity.log', {
-        //     type: 'USER_REGISTERED',
-        //     message: `${user.email} joined the platform`,
-        //     metadata: { userId: user.id },
-        // });
+        this.eventEmitter.emit('activity.log', {
+            type: 'USER_REGISTERED',
+            message: `${user.email} joined the platform`,
+            metadata: { userId: user.id },
+        });
 
         return ResponseHelper.created(
             {
@@ -117,11 +120,11 @@ export class AuthService {
             data: { lastLoginAt: new Date() },
         });
 
-        // this.eventEmitter.emit('activity.log', {
-        //     type: 'USER_LOGIN',
-        //     message: `${user.email} logged in`,
-        //     metadata: { userId: user.id },
-        // });
+        this.eventEmitter.emit('activity.log', {
+            type: 'USER_LOGIN',
+            message: `${user.email} logged in`,
+            metadata: { userId: user.id },
+        });
 
         const payload = { sub: user.id, email: user.email, role: user.role };
         const { accessToken, refreshToken } = generateTokens(
@@ -129,6 +132,12 @@ export class AuthService {
             this.configService,
             payload,
         );
+
+        // Store refresh token in Redis (e.g., valid for 30 days => 30 * 24 * 60 * 60)
+        // Extract TTL from config or default to 30 days
+        const refreshExpiresInStr = this.configService.get<string>('REFRESH_TOKEN_EXPIRES_IN') as string;
+        const ttlSeconds = refreshExpiresInStr.includes('d') ? parseInt(refreshExpiresInStr) * 24 * 60 * 60 : 30 * 24 * 60 * 60;
+        await this.redisService.set(`refresh_token:${user.id}`, refreshToken, ttlSeconds);
 
         return ResponseHelper.success(
             {
@@ -146,7 +155,14 @@ export class AuthService {
 
     async refreshToken(dto: RefreshTokenDto) {
         try {
-            const decoded = this.jwtService.verify(dto.refreshToken);
+            const refreshSecret = this.configService.get<string>('jwt.refreshSecret') as string;
+            const decoded = this.jwtService.verify(dto.refreshToken, { secret: refreshSecret });
+
+            // Check if token matches the one in Redis
+            const storedToken = await this.redisService.get(`refresh_token:${decoded.sub}`);
+            if (!storedToken || storedToken !== dto.refreshToken) {
+                throw new UnauthorizedException('Invalid or expired refresh token');
+            }
 
             // Verify user exists and is active
             const user = await this.prisma.user.findUnique({
@@ -168,6 +184,11 @@ export class AuthService {
                 payload,
             );
 
+            // Update refresh token in Redis
+            const refreshExpiresInStr = this.configService.get<string>('REFRESH_TOKEN_EXPIRES_IN') as string;
+            const ttlSeconds = refreshExpiresInStr.includes('d') ? parseInt(refreshExpiresInStr) * 24 * 60 * 60 : 30 * 24 * 60 * 60;
+            await this.redisService.set(`refresh_token:${user.id}`, refreshToken, ttlSeconds);
+
             return ResponseHelper.success(
                 { accessToken, refreshToken },
                 'Token refreshed successfully',
@@ -175,5 +196,20 @@ export class AuthService {
         } catch (error) {
             throw new UnauthorizedException('Invalid or expired refresh token');
         }
+    }
+
+    async logout(userId: string) {
+        await this.redisService.del(`refresh_token:${userId}`);
+
+        // Invalidate current access tokens by storing a logout timestamp (TTL: 15 mins)
+        await this.redisService.set(`user_logout:${userId}`, Date.now().toString(), 15 * 60);
+
+        this.eventEmitter.emit('activity.log', {
+            type: 'USER_LOGOUT',
+            message: `User logged out`,
+            metadata: { userId },
+        });
+
+        return ResponseHelper.success(null, 'Logged out successfully');
     }
 }

@@ -10,11 +10,13 @@ import {
     NotFoundException,
     OtpInvalidException,
     ServiceUnavailableException,
+    TooManyAttemptsException,
 } from '../../../common/exceptions/business.exception';
 import { generateOtpCode } from '../utils/otp.util';
 import { generateTokens } from '../utils/token.util';
 import { EmailService } from '@/shared/mail/email-service';
 import { getOtpEmailContent } from '@/shared/mail/templates/otp-email.template';
+import { RedisService } from '../../../shared/redis/redis.service';
 
 @Injectable()
 export class OtpService {
@@ -23,6 +25,7 @@ export class OtpService {
         private readonly emailService: EmailService,
         private readonly jwtService: JwtService,
         private readonly configService: ConfigService,
+        private readonly redisService: RedisService,
     ) { }
 
     async sendOtp(
@@ -91,9 +94,26 @@ export class OtpService {
             orderBy: { createdAt: 'desc' },
         });
 
-        if (!otp || otp.code !== dto.code) {
+        if (!otp) {
             throw new OtpInvalidException();
         }
+
+        const attemptsKey = `otp_attempts:${otp.id}`;
+        const currentAttempts = await this.redisService.get(attemptsKey);
+        
+        if (currentAttempts && parseInt(currentAttempts) >= 5) {
+            throw new TooManyAttemptsException();
+        }
+
+        if (otp.code !== dto.code) {
+            const newAttempts = await this.redisService.incr(attemptsKey);
+            if (newAttempts === 1) {
+                await this.redisService.expire(attemptsKey, 600); // Expires after 10 minutes (max validity of OTP)
+            }
+            throw new OtpInvalidException();
+        }
+
+        await this.redisService.del(attemptsKey);
 
         await this.prisma.oTP.update({
             where: { id: otp.id },
