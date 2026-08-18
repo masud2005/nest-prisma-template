@@ -89,15 +89,21 @@ Once the server is running, the Swagger API documentation will be available at:
 ## 📂 Project Structure
 
 ```text
-src/
-├── common/         # Global guards, filters, interceptors, constants, exceptions
-├── config/         # App configurations & Environment variable validation
-├── modules/        # Feature modules (e.g., Auth, User)
-├── shared/         # Shared infrastructure (Redis, Email, Throttler)
-├── prisma/         # Prisma module and service integration
-├── main.ts         # Application entry point
+.
+├── prisma/             # Prisma ORM Configurations
+│   ├── generated/      # Auto-generated Prisma Client
+│   ├── migrations/     # Database migration history
+│   ├── schema/         # Database models/schemas
+│   └── seeds/          # Database seeding scripts
+│
+├── src/                # Application Source Code
+│   ├── common/         # Global guards, filters, interceptors, constants, exceptions
+│   ├── config/         # App configurations & Environment variable validation
+│   ├── modules/        # Feature modules (e.g., Auth, User)
+│   ├── shared/         # Shared infrastructure (Redis, Email, Throttler)
+│   ├── prisma/         # Prisma NestJS module and service integration
+│   └── main.ts         # Application entry point
+│
+├── docker-compose.yml  # Docker infrastructure config
+└── .env.example        # Environment variables template
 ```
-
-## 📜 License
-
-This project is [MIT licensed](LICENSE).
