@@ -66,8 +66,8 @@ async function bootstrap() {
   const PORT = process.env.PORT ?? 3000;
   await app.listen(PORT, '0.0.0.0');
   console.log(`Server running on PORT ${PORT}`);
-  console.log(`Local access:   http://localhost:${PORT}/api/v1`);
-  console.log(`Network access: http://10.10.10.32:${PORT}/api/v1`);
+  console.log(`API Base URL: http://localhost:${PORT}/api/v1`);
+  console.log(`API documentation: http://localhost:${PORT}/docs`);
 }
 
 bootstrap();

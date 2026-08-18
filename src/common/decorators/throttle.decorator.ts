@@ -3,7 +3,7 @@ import { RATE_LIMIT } from '../constants/rate-limit.constant';
 
 export const ThrottleAuth = () =>
   Throttle({
-    [RATE_LIMIT.AUTH.name]: {
+    default: {
       ttl: RATE_LIMIT.AUTH.ttl,
       limit: RATE_LIMIT.AUTH.limit,
     },
@@ -28,7 +28,7 @@ export const ThrottleRefreshToken = () =>
 
 export const ThrottleLogin = () =>
   Throttle({
-    [RATE_LIMIT.LOGIN.name]: {
+    default: {
       ttl: RATE_LIMIT.LOGIN.ttl,
       limit: RATE_LIMIT.LOGIN.limit,
     },
@@ -36,7 +36,7 @@ export const ThrottleLogin = () =>
 
 export const ThrottleOtp = () =>
   Throttle({
-    [RATE_LIMIT.OTP.name]: {
+    default: {
       ttl: RATE_LIMIT.OTP.ttl,
       limit: RATE_LIMIT.OTP.limit,
     },
@@ -44,7 +44,7 @@ export const ThrottleOtp = () =>
 
 export const ThrottleOtpResend = () =>
   Throttle({
-    [RATE_LIMIT.OTP_RESEND.name]: {
+    default: {
       ttl: RATE_LIMIT.OTP_RESEND.ttl,
       limit: RATE_LIMIT.OTP_RESEND.limit,
     },
@@ -52,7 +52,7 @@ export const ThrottleOtpResend = () =>
 
 export const ThrottlePasswordReset = () =>
   Throttle({
-    [RATE_LIMIT.PASSWORD_RESET.name]: {
+    default: {
       ttl: RATE_LIMIT.PASSWORD_RESET.ttl,
       limit: RATE_LIMIT.PASSWORD_RESET.limit,
     },

@@ -13,8 +13,8 @@ import {
 } from '../../../common/exceptions/business.exception';
 import { generateOtpCode } from '../utils/otp.util';
 import { generateTokens } from '../utils/token.util';
-import { EmailService } from '@/common/services/email/email-service';
-import { getOtpEmailContent } from '@/common/templates/otp-email.template';
+import { EmailService } from '@/shared/mail/email-service';
+import { getOtpEmailContent } from '@/shared/mail/templates/otp-email.template';
 
 @Injectable()
 export class OtpService {

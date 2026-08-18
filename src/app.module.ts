@@ -6,11 +6,29 @@ import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerConfigModule } from './common/modules/throttler.module';
 import { ModulesModule } from './modules/modules.module';
+import { validate } from './config/env.validation';
+import {
+  appConfig,
+  databaseConfig,
+  redisConfig,
+  adminConfig,
+  jwtConfig,
+  mailConfig,
+} from './config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      validate,
+      load: [
+        appConfig,
+        databaseConfig,
+        redisConfig,
+        adminConfig,
+        jwtConfig,
+        mailConfig,
+      ],
     }),
     EventEmitterModule.forRoot(),
     ThrottlerConfigModule,

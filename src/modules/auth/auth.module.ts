@@ -6,7 +6,7 @@ import { AuthController } from './controllers/auth.controller';
 import { AuthService } from './services/auth.service';
 import { OtpService } from './services/otp.service';
 import { PrismaModule } from '../../prisma/prisma.module';
-import { EmailService } from '../../common/services/email/email-service';
+import { EmailService } from '../../shared/mail/email-service';
 import { AuthOtpController } from './controllers/otp.controller';
 import { AuthPasswordController } from './controllers/password.controller';
 import { PasswordService } from './services/password.service';

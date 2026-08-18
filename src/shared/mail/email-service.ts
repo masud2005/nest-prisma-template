@@ -10,12 +10,12 @@ export class EmailService {
 
     constructor(private configService: ConfigService) {
         this.transporter = nodemailer.createTransport({
-            host: this.configService.get<string>('SMTP_HOST'),
-            port: this.configService.get<number>('SMTP_PORT'),
-            secure: this.configService.get<string>('SMTP_SECURE') === 'true',
+            host: this.configService.get<string>('mail.host'),
+            port: this.configService.get<number>('mail.port'),
+            secure: this.configService.get<string>('mail.secure') === 'true',
             auth: {
-                user: this.configService.get<string>('SMTP_USER'),
-                pass: this.configService.get<string>('SMTP_PASS'),
+                user: this.configService.get<string>('mail.user'),
+                pass: this.configService.get<string>('mail.pass'),
             },
         });
     }
@@ -27,7 +27,7 @@ export class EmailService {
     ): Promise<boolean> {
         try {
             const mailOptions = {
-                from: this.configService.get<string>('SMTP_FROM'),
+                from: this.configService.get<string>('mail.from'),
                 to,
                 subject,
                 html: htmlContent,
