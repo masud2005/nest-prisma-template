@@ -1,6 +1,6 @@
 export const RATE_LIMIT = {
   GLOBAL: {
-    name: 'global',
+    name: 'default',
     ttl: 60_000,
     limit: 100,
   },
